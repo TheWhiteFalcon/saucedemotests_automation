@@ -1,0 +1,8 @@
+selenium 
+pytest 
+allure-pytest 
+webdriver-manager 
+pytest-xdist 
+pytest-html 
+pytest-timeout 
+requests
