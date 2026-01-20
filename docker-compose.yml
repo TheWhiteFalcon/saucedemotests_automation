@@ -1,0 +1,87 @@
+version: '3.8'
+
+services:
+  # Сервис с тестами
+  tests:
+    build: .
+    container_name: sauce-demo-tests
+    volumes:
+      # Монтируем папку для результатов Allure
+      - ./allure-results:/app/allure-results
+      # Монтируем папку для HTML-отчёта
+      - ./reports:/app/reports
+    depends_on:
+      - selenium
+    environment:
+      - SELENIUM_HOST=selenium
+    # Команда запуска тестов
+    command: >
+      sh -c "
+      echo '⏳ Ожидаем запуск Selenium...' &&
+      sleep 5 &&
+      echo '🚀 Запускаем тесты...' &&
+      python -m pytest src/tests/ -v --alluredir=/app/allure-results --html=/app/reports/report.html
+      "
+    # После выполнения тестов контейнер завершится
+
+  # Selenium Chrome сервер
+  selenium:
+    image: selenium/standalone-chrome:4.18
+    container_name: selenium-chrome
+    ports:
+      - "4444:4444"
+    shm_size: 2gb
+    # Headless режим (без графического интерфейса)
+    environment:
+      - SE_SCREEN_WIDTH=1920
+      - SE_SCREEN_HEIGHT=1080
+      - SE_START_XVFB=false
+
+  # Сервер Allure-отчётов
+  allure:
+    image: frankescobar/allure-docker-service
+    container_name: allure-server
+    depends_on:
+      - tests  # Запустится только после выполнения тестов
+    ports:
+      - "5050:5050"  # Веб-интерфейс Allure
+    environment:
+      CHECK_RESULTS_EVERY_SECONDS: 3
+      KEEP_HISTORY: "true"
+    volumes:
+      # Используем ту же папку с результатами
+      - ./allure-results:/app/allure-results
+
+  # Простой HTTP-сервер для HTML-отчёта (альтернатива Allure)
+  html-report:
+    image: nginx:alpine
+    container_name: html-report-server
+    depends_on:
+      - tests
+    ports:
+      - "8080:80"
+    volumes:
+      - ./reports:/usr/share/nginx/html
+    command: >
+      sh -c "
+      # Создаём пустой favicon.ico, чтобы nginx не ругался
+      touch /usr/share/nginx/html/favicon.ico
+        
+      # Конфигурация nginx
+      echo 'server {
+        listen 80;
+        root /usr/share/nginx/html;
+          
+        location / {
+          try_files $$uri /report.html =404;
+        }
+          
+        # Отключаем логи для favicon
+        location = /favicon.ico {
+          access_log off;
+          log_not_found off;
+        }
+      }' > /etc/nginx/conf.d/default.conf
+        
+      nginx -g 'daemon off;'
+      "

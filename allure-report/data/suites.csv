@@ -1,0 +1,7 @@
+"DESCRIPTION","DURATION IN MS","NAME","PARENT SUITE","START TIME","STATUS","STOP TIME","SUB SUITE","SUITE","TEST CLASS","TEST METHOD"
+"","5173","Тест 6: Логин performance_glitch_user","src.tests","2026-01-17","passed","2026-01-17","TestLogin","test_login_page","",""
+"","182","Тест 3: Логин с неверным паролем","src.tests","2026-01-17","passed","2026-01-17","TestLogin","test_login_page","",""
+"","5","Тест 1: Открытие страницы логина","src.tests","2026-01-17","passed","2026-01-17","TestLogin","test_login_page","",""
+"","70","Тест 5: Логин с пустыми полями","src.tests","2026-01-17","passed","2026-01-17","TestLogin","test_login_page","",""
+"","165","Тест 4: Логин заблокированного пользователя","src.tests","2026-01-17","passed","2026-01-17","TestLogin","test_login_page","",""
+"","176","Тест 2: Успешный логин (standard_user)","src.tests","2026-01-17","passed","2026-01-17","TestLogin","test_login_page","",""
